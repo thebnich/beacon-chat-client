@@ -16,27 +16,28 @@ import UIKit
 
 class ViewController: UIViewController, BeaconScannerDelegate {
 
-  var beaconScanner: BeaconScanner!
+  let beaconScanner = BeaconScanner()
 
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    self.beaconScanner = BeaconScanner()
-    self.beaconScanner!.delegate = self
-    self.beaconScanner!.startScanning()
+    beaconScanner.delegate = self
+    beaconScanner.startScanning()
   }
 
   func didFindBeacon(beaconScanner: BeaconScanner, beaconInfo: BeaconInfo) {
     NSLog("FIND: %@", beaconInfo.description)
   }
+
   func didLoseBeacon(beaconScanner: BeaconScanner, beaconInfo: BeaconInfo) {
     NSLog("LOST: %@", beaconInfo.description)
   }
+
   func didUpdateBeacon(beaconScanner: BeaconScanner, beaconInfo: BeaconInfo) {
     NSLog("UPDATE: %@", beaconInfo.description)
   }
+
   func didObserveURLBeacon(beaconScanner: BeaconScanner, URL: NSURL, RSSI: Int) {
     NSLog("URL SEEN: %@, RSSI: %d", URL, RSSI)
   }
-
 }

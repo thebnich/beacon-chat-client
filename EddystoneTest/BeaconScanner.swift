@@ -19,7 +19,7 @@ import CoreBluetooth
 /// BeaconScannerDelegate
 ///
 /// Implement this to receive notifications about beacons.
-protocol BeaconScannerDelegate {
+protocol BeaconScannerDelegate: class {
   func didFindBeacon(beaconScanner: BeaconScanner, beaconInfo: BeaconInfo)
   func didLoseBeacon(beaconScanner: BeaconScanner, beaconInfo: BeaconInfo)
   func didUpdateBeacon(beaconScanner: BeaconScanner, beaconInfo: BeaconInfo)
@@ -34,7 +34,7 @@ protocol BeaconScannerDelegate {
 ///
 class BeaconScanner: NSObject, CBCentralManagerDelegate {
 
-  var delegate: BeaconScannerDelegate?
+  weak var delegate: BeaconScannerDelegate?
 
   ///
   /// How long we should go without a beacon sighting before considering it "lost". In seconds.
