@@ -41,14 +41,14 @@ class BeaconID : NSObject {
 
   override var description: String {
     if self.beaconType == BeaconType.Eddystone || self.beaconType == BeaconType.EddystoneEID {
-      let hexid = hexBeaconID(self.beaconID)
-      return "BeaconID beacon: \(hexid)"
+      return BeaconID.hexBeaconID(self.beaconID)
     } else {
+      assertionFailure()
       return "BeaconID with invalid type (\(beaconType))"
     }
   }
 
-  private func hexBeaconID(beaconID: [UInt8]) -> String {
+  private class func hexBeaconID(beaconID: [UInt8]) -> String {
     var retval = ""
     for byte in beaconID {
       var s = String(byte, radix:16, uppercase: false)
@@ -71,6 +71,11 @@ func ==(lhs: BeaconID, rhs: BeaconID) -> Bool {
   }
 
   return false;
+}
+
+struct ExtendedBeaconInfo {
+  let beaconID: BeaconID
+  let txPower: Int
 }
 
 ///
@@ -109,40 +114,46 @@ class BeaconInfo : NSObject {
     }
   }
 
-  let beaconID: BeaconID
-  let txPower: Int
+  let extendedInfo: ExtendedBeaconInfo?
+  let URL: NSURL?
   let RSSI: Int
   let telemetry: NSData?
 
   private init(beaconID: BeaconID, txPower: Int, RSSI: Int, telemetry: NSData?) {
-    self.beaconID = beaconID
-    self.txPower = txPower
+    self.extendedInfo = ExtendedBeaconInfo(beaconID: beaconID, txPower: txPower)
+    self.URL = nil
     self.RSSI = RSSI
     self.telemetry = telemetry
   }
 
-  class func frameTypeForFrame(advertisementFrameList: [NSObject : AnyObject])
-    -> EddystoneFrameType {
-      let uuid = CBUUID(string: "FEAA")
-      if let frameData = advertisementFrameList[uuid] as? NSData {
-        if frameData.length > 1 {
-          let count = frameData.length
-          var frameBytes = [UInt8](count: count, repeatedValue: 0)
-          frameData.getBytes(&frameBytes, length: count)
+  private init(URL: NSURL, RSSI: Int, telemetry: NSData?) {
+    self.URL = URL
+    self.extendedInfo = nil
+    self.RSSI = RSSI
+    self.telemetry = telemetry
+  }
 
-          if frameBytes[0] == EddystoneUIDFrameTypeID {
-            return EddystoneFrameType.UIDFrameType
-          } else if frameBytes[0] == EddystoneTLMFrameTypeID {
-            return EddystoneFrameType.TelemetryFrameType
-          } else if frameBytes[0] == EddystoneEIDFrameTypeID {
-            return EddystoneFrameType.EIDFrameType
-          } else if frameBytes[0] == EddystoneURLFrameTypeID {
-            return EddystoneFrameType.URLFrameType
-          }
+  class func frameTypeForFrame(advertisementFrameList: [NSObject : AnyObject]) -> EddystoneFrameType {
+    let uuid = CBUUID(string: "FEAA")
+    if let frameData = advertisementFrameList[uuid] as? NSData {
+      if frameData.length > 1 {
+        let count = frameData.length
+        var frameBytes = [UInt8](count: count, repeatedValue: 0)
+        frameData.getBytes(&frameBytes, length: count)
+
+        if frameBytes[0] == EddystoneUIDFrameTypeID {
+          return EddystoneFrameType.UIDFrameType
+        } else if frameBytes[0] == EddystoneTLMFrameTypeID {
+          return EddystoneFrameType.TelemetryFrameType
+        } else if frameBytes[0] == EddystoneEIDFrameTypeID {
+          return EddystoneFrameType.EIDFrameType
+        } else if frameBytes[0] == EddystoneURLFrameTypeID {
+          return EddystoneFrameType.URLFrameType
         }
+      }
     }
 
-     return EddystoneFrameType.UnknownFrameType
+   return EddystoneFrameType.UnknownFrameType
   }
 
   class func telemetryDataForFrame(advertisementFrameList: [NSObject : AnyObject]!) -> NSData? {
@@ -154,50 +165,53 @@ class BeaconInfo : NSObject {
   /// in the Swift compiler — it can't tear-down partially initialised objects, so we'll have to 
   /// wait until this gets fixed. For now, class method will do.
   ///
-  class func beaconInfoForUIDFrameData(frameData: NSData, telemetry: NSData?, RSSI: Int)
-    -> BeaconInfo? {
-      if frameData.length > 1 {
-        let count = frameData.length
-        var frameBytes = [UInt8](count: count, repeatedValue: 0)
-        frameData.getBytes(&frameBytes, length: count)
+  class func beaconInfoForUIDFrameData(frameData: NSData, telemetry: NSData?, RSSI: Int) -> BeaconInfo? {
+    if frameData.length > 1 {
+      let count = frameData.length
+      var frameBytes = [UInt8](count: count, repeatedValue: 0)
+      frameData.getBytes(&frameBytes, length: count)
 
-        if frameBytes[0] != EddystoneUIDFrameTypeID {
-          NSLog("Unexpected non UID Frame passed to BeaconInfoForUIDFrameData.")
-          return nil
-        } else if frameBytes.count < 18 {
-          NSLog("Frame Data for UID Frame unexpectedly truncated in BeaconInfoForUIDFrameData.")
-        }
-
-        let txPower = Int(Int8(bitPattern:frameBytes[1]))
-        let beaconID: [UInt8] = Array(frameBytes[2..<18])
-        let bid = BeaconID(beaconType: BeaconID.BeaconType.Eddystone, beaconID: beaconID)
-        return BeaconInfo(beaconID: bid, txPower: txPower, RSSI: RSSI, telemetry: telemetry)
+      if frameBytes[0] != EddystoneUIDFrameTypeID {
+        NSLog("Unexpected non UID Frame passed to BeaconInfoForUIDFrameData.")
+        return nil
+      } else if frameBytes.count < 18 {
+        NSLog("Frame Data for UID Frame unexpectedly truncated in BeaconInfoForUIDFrameData.")
       }
 
-      return nil
+      let txPower = Int(Int8(bitPattern:frameBytes[1]))
+      let beaconID: [UInt8] = Array(frameBytes[2..<18])
+      let bid = BeaconID(beaconType: BeaconID.BeaconType.Eddystone, beaconID: beaconID)
+      return BeaconInfo(beaconID: bid, txPower: txPower, RSSI: RSSI, telemetry: telemetry)
+    }
+
+    return nil
   }
 
-  class func beaconInfoForEIDFrameData(frameData: NSData, telemetry: NSData?, RSSI: Int)
-    -> BeaconInfo? {
-      if frameData.length > 1 {
-        let count = frameData.length
-        var frameBytes = [UInt8](count: count, repeatedValue: 0)
-        frameData.getBytes(&frameBytes, length: count)
+  class func beaconInfoForEIDFrameData(frameData: NSData, telemetry: NSData?, RSSI: Int) -> BeaconInfo? {
+    if frameData.length > 1 {
+      let count = frameData.length
+      var frameBytes = [UInt8](count: count, repeatedValue: 0)
+      frameData.getBytes(&frameBytes, length: count)
 
-        if frameBytes[0] != EddystoneEIDFrameTypeID {
-          NSLog("Unexpected non EID Frame passed to BeaconInfoForEIDFrameData.")
-          return nil
-        } else if frameBytes.count < 10 {
-          NSLog("Frame Data for EID Frame unexpectedly truncated in BeaconInfoForEIDFrameData.")
-        }
-
-        let txPower = Int(Int8(bitPattern:frameBytes[1]))
-        let beaconID: [UInt8] = Array(frameBytes[2..<10])
-        let bid = BeaconID(beaconType: BeaconID.BeaconType.EddystoneEID, beaconID: beaconID)
-        return BeaconInfo(beaconID: bid, txPower: txPower, RSSI: RSSI, telemetry: telemetry)
+      if frameBytes[0] != EddystoneEIDFrameTypeID {
+        NSLog("Unexpected non EID Frame passed to BeaconInfoForEIDFrameData.")
+        return nil
+      } else if frameBytes.count < 10 {
+        NSLog("Frame Data for EID Frame unexpectedly truncated in BeaconInfoForEIDFrameData.")
       }
 
-      return nil
+      let txPower = Int(Int8(bitPattern:frameBytes[1]))
+      let beaconID: [UInt8] = Array(frameBytes[2..<10])
+      let bid = BeaconID(beaconType: BeaconID.BeaconType.EddystoneEID, beaconID: beaconID)
+      return BeaconInfo(beaconID: bid, txPower: txPower, RSSI: RSSI, telemetry: telemetry)
+    }
+
+    return nil
+  }
+
+  class func beaconInfoForURLFrameData(frameData: NSData, telemetry: NSData?, RSSI: Int) -> BeaconInfo? {
+      guard let URL = BeaconInfo.parseURLFromFrame(frameData) else { return nil }
+      return BeaconInfo(URL: URL, RSSI: RSSI, telemetry: telemetry)
   }
 
   class func parseURLFromFrame(frameData: NSData) -> NSURL? {
@@ -222,12 +236,21 @@ class BeaconInfo : NSObject {
   }
 
   override var description: String {
-    switch self.beaconID.beaconType {
-    case .Eddystone:
-      return "Eddystone \(self.beaconID), txPower: \(self.txPower), RSSI: \(self.RSSI)"
-    case .EddystoneEID:
-      return "Eddystone EID \(self.beaconID), txPower: \(self.txPower), RSSI: \(self.RSSI)"
+    if let extendedInfo = extendedInfo {
+      switch extendedInfo.beaconID.beaconType {
+      case .Eddystone:
+        return "Eddystone \(extendedInfo.beaconID), txPower: \(extendedInfo.txPower), RSSI: \(self.RSSI)"
+      case .EddystoneEID:
+        return "Eddystone EID \(extendedInfo.beaconID), txPower: \(extendedInfo.txPower), RSSI: \(self.RSSI)"
+      }
     }
+
+    guard let URL = URL else {
+      assertionFailure()
+      return ""
+    }
+
+    return "Eddystone URL \(URL.absoluteString), RSSI: \(self.RSSI)"
   }
 
   class func URLPrefixFromByte(schemeID: UInt8) -> String? {

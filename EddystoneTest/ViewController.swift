@@ -36,8 +36,4 @@ class ViewController: UIViewController, BeaconScannerDelegate {
   func didUpdateBeacon(beaconScanner: BeaconScanner, beaconInfo: BeaconInfo) {
     NSLog("UPDATE: %@", beaconInfo.description)
   }
-
-  func didObserveURLBeacon(beaconScanner: BeaconScanner, URL: NSURL, RSSI: Int) {
-    NSLog("URL SEEN: %@, RSSI: %d", URL, RSSI)
-  }
 }
