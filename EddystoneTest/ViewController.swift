@@ -17,12 +17,35 @@ import UIKit
 class ViewController: UIViewController, BeaconScannerDelegate {
 
   let beaconScanner = BeaconScanner()
+  let beaconText = UITextView()
+
+  var beaconsInRange = [NSURL: (count: Int, sumRSSI: Int)]()
+  var timer: NSTimer?
 
   override func viewDidLoad() {
     super.viewDidLoad()
 
+    view.addSubview(beaconText)
+    beaconText.scrollEnabled = false
+    beaconText.font = UIFont.systemFontOfSize(20)
+    beaconText.translatesAutoresizingMaskIntoConstraints = false
+    beaconText.centerXAnchor.constraintEqualToAnchor(view.centerXAnchor).active = true
+    beaconText.centerYAnchor.constraintEqualToAnchor(view.centerYAnchor).active = true
+
+    let leaveButton = UIButton()
+    view.addSubview(leaveButton)
+    leaveButton.setTitle("Leave room", forState: .Normal)
+    leaveButton.setTitleColor(UIColor.blackColor(), forState: .Normal)
+    leaveButton.addTarget(self, action: #selector(scanForRoom), forControlEvents: .TouchUpInside)
+    leaveButton.titleLabel?.font = UIFont.systemFontOfSize(20)
+    leaveButton.translatesAutoresizingMaskIntoConstraints = false
+    leaveButton.centerXAnchor.constraintEqualToAnchor(view.centerXAnchor).active = true
+    leaveButton.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor).active = true
+
     beaconScanner.delegate = self
-    beaconScanner.startScanning()
+
+    updateClosestBeacon()
+    scanForRoom()
   }
 
   func didFindBeacon(beaconScanner: BeaconScanner, beaconInfo: BeaconInfo) {
@@ -34,6 +57,45 @@ class ViewController: UIViewController, BeaconScannerDelegate {
   }
 
   func didUpdateBeacon(beaconScanner: BeaconScanner, beaconInfo: BeaconInfo) {
+    guard let URL = beaconInfo.URL else { return }
+
+    let (count, sumRSSI) = beaconsInRange[URL] ?? (0, 0)
+    beaconsInRange[URL] = (count + 1, sumRSSI + beaconInfo.RSSI)
+
     NSLog("UPDATE: %@", beaconInfo.description)
+  }
+
+  func updateClosestBeacon() {
+    // beaconsInRange is modified both on the UI thread and the background thread.
+    // Make a local copy here so it doesn't change while we're iterating over it.
+    let beaconsInRange = self.beaconsInRange
+    let initial: (URL: NSURL, averageRSSI: Int)? = nil
+    let closestBeacon = beaconsInRange.reduce(initial) { current, other in
+      let averageRSSI = other.1.sumRSSI / other.1.count
+      return (averageRSSI > current?.averageRSSI) ? (other.0, averageRSSI) : current
+    }
+
+    self.beaconsInRange.removeAll()
+
+    guard let URL = closestBeacon?.URL else {
+      beaconText.text = "Scanning..."
+      return
+    }
+
+    joinRoom(URL)
+  }
+
+  func joinRoom(URL: NSURL) {
+    timer?.invalidate()
+    beaconScanner.stopScanning()
+    beaconText.text = URL.absoluteString
+  }
+
+  func scanForRoom() {
+    beaconsInRange.removeAll()
+    updateClosestBeacon()
+
+    beaconScanner.startScanning()
+    timer = NSTimer.scheduledTimerWithTimeInterval(3, target: self, selector: #selector(updateClosestBeacon), userInfo: nil, repeats: true)
   }
 }
