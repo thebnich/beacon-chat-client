@@ -106,7 +106,7 @@ class ChatViewController: UIViewController, ChatClientDelegate, UITableViewDataS
     func chatClientOnMessage(chatClient: ChatClient, time: String, user: String, message: String) {
         messages.append(ChatMessage(time: time, user: user, message: message))
         chatTable.reloadData()
-        self.chatTable.scrollToRowAtIndexPath(NSIndexPath(forRow: self.chatTable.numberOfRowsInSection(0) - 1, inSection: 0), atScrollPosition: .Bottom, animated: true)
+        scrollToBottom(animated: true)
     }
 
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -141,7 +141,7 @@ class ChatViewController: UIViewController, ChatClientDelegate, UITableViewDataS
             self.chatTextBottomConstraint.constant = -keyboardHeight
             UIView.setAnimationCurve(state.animationCurve)
             self.view.layoutIfNeeded()
-            self.chatTable.scrollToRowAtIndexPath(NSIndexPath(forRow: self.chatTable.numberOfRowsInSection(0) - 1, inSection: 0), atScrollPosition: .Bottom, animated: false)
+            self.scrollToBottom(animated: false)
         }
     }
 
@@ -150,6 +150,13 @@ class ChatViewController: UIViewController, ChatClientDelegate, UITableViewDataS
             self.chatTextBottomConstraint.constant = 0
             UIView.setAnimationCurve(state.animationCurve)
             self.view.layoutIfNeeded()
+        }
+    }
+
+    private func scrollToBottom(animated animated: Bool) {
+        let bottomRow = self.chatTable.numberOfRowsInSection(0) - 1
+        if bottomRow >= 0 {
+            self.chatTable.scrollToRowAtIndexPath(NSIndexPath(forRow: bottomRow, inSection: 0), atScrollPosition: .Bottom, animated: animated)
         }
     }
 }
