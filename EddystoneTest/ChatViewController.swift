@@ -13,7 +13,7 @@ private struct ChatMessage {
     let message: String
 }
 
-class ChatViewController: UIViewController, ChatClientDelegate, UITableViewDataSource, UITextFieldDelegate {
+class ChatViewController: UIViewController, ChatClientDelegate, UITableViewDataSource, UITextFieldDelegate, KeyboardHelperDelegate {
     private let chatTable = UITableView()
     private var chatTextBottomConstraint: NSLayoutConstraint!
     private var messages = [ChatMessage]()
@@ -56,6 +56,8 @@ class ChatViewController: UIViewController, ChatClientDelegate, UITableViewDataS
         chatTable.bottomAnchor.constraintEqualToAnchor(chatTextBorder.topAnchor).active = true
         chatTable.dataSource = self
         chatTable.allowsSelection = false
+
+        KeyboardHelper.defaultHelper.addDelegate(self)
     }
 
     func loadURL(URL: NSURL) {
@@ -93,5 +95,23 @@ class ChatViewController: UIViewController, ChatClientDelegate, UITableViewDataS
             textField.text = nil
         }
         return true
+    }
+
+    func keyboardHelper(keyboardHelper: KeyboardHelper, keyboardWillShowWithState state: KeyboardState) {
+        let keyboardHeight = state.intersectionHeightForView(self.view) ?? 0
+        UIView.animateWithDuration(state.animationDuration) {
+            self.chatTextBottomConstraint.constant = -keyboardHeight
+            UIView.setAnimationCurve(state.animationCurve)
+            self.view.layoutIfNeeded()
+            self.chatTable.scrollToRowAtIndexPath(NSIndexPath(forRow: self.chatTable.numberOfRowsInSection(0) - 1, inSection: 0), atScrollPosition: .Bottom, animated: false)
+        }
+    }
+
+    func keyboardHelper(keyboardHelper: KeyboardHelper, keyboardWillHideWithState state: KeyboardState) {
+        UIView.animateWithDuration(state.animationDuration) {
+            self.chatTextBottomConstraint.constant = 0
+            UIView.setAnimationCurve(state.animationCurve)
+            self.view.layoutIfNeeded()
+        }
     }
 }

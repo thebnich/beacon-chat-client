@@ -16,6 +16,7 @@
 		D354E9B81D08E6F8009507E6 /* ChatClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = D354E9B71D08E6F8009507E6 /* ChatClient.swift */; };
 		D354E9BA1D08EF1F009507E6 /* SocketIOClientSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D354E9B91D08EF1F009507E6 /* SocketIOClientSwift.framework */; };
 		D354E9BB1D08EF1F009507E6 /* SocketIOClientSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D354E9B91D08EF1F009507E6 /* SocketIOClientSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D35660A81D09052800B310BB /* KeyboardHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D35660A71D09052800B310BB /* KeyboardHelper.swift */; };
 		D3ACF7951D06284000647D43 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3ACF7941D06284000647D43 /* AppDelegate.swift */; };
 		D3ACF7971D06284000647D43 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3ACF7961D06284000647D43 /* ViewController.swift */; };
 		D3ACF79A1D06284000647D43 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D3ACF7981D06284000647D43 /* Main.storyboard */; };
@@ -47,6 +48,7 @@
 		D3436EA91D0628CF00FED02B /* Eddystone.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = Eddystone.swift; sourceTree = "<group>"; tabWidth = 2; };
 		D354E9B71D08E6F8009507E6 /* ChatClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatClient.swift; sourceTree = "<group>"; };
 		D354E9B91D08EF1F009507E6 /* SocketIOClientSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SocketIOClientSwift.framework; path = Carthage/Build/iOS/SocketIOClientSwift.framework; sourceTree = "<group>"; };
+		D35660A71D09052800B310BB /* KeyboardHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardHelper.swift; sourceTree = "<group>"; };
 		D3ACF7911D06284000647D43 /* EddystoneTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EddystoneTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D3ACF7941D06284000647D43 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D3ACF7961D06284000647D43 /* ViewController.swift */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; tabWidth = 2; };
@@ -106,6 +108,7 @@
 				D3AE23FC1D07E10000BE1D0F /* ChatViewController.swift */,
 				D3436EA81D0628CF00FED02B /* DispatchTimer.swift */,
 				D3436EA91D0628CF00FED02B /* Eddystone.swift */,
+				D35660A71D09052800B310BB /* KeyboardHelper.swift */,
 				D3ACF7961D06284000647D43 /* ViewController.swift */,
 				D3ACF79B1D06284000647D43 /* Assets.xcassets */,
 				D3436EA01D0628CF00FED02B /* Base.lproj */,
@@ -190,6 +193,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D35660A81D09052800B310BB /* KeyboardHelper.swift in Sources */,
 				D3ACF7971D06284000647D43 /* ViewController.swift in Sources */,
 				D3436EB01D0628CF00FED02B /* Eddystone.swift in Sources */,
 				D3AE23FD1D07E10000BE1D0F /* ChatViewController.swift in Sources */,
