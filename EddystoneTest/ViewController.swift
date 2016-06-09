@@ -62,7 +62,8 @@ class ViewController: UIViewController, BeaconScannerDelegate {
   }
 
   func didUpdateBeacon(beaconScanner: BeaconScanner, beaconInfo: BeaconInfo) {
-    guard let URL = beaconInfo.URL else { return }
+    // +127 is returned if the value cannot be read.
+    guard let URL = beaconInfo.URL where beaconInfo.RSSI != 127 else { return }
 
     let (count, sumRSSI) = beaconsInRange[URL] ?? (0, 0)
     beaconsInRange[URL] = (count + 1, sumRSSI + beaconInfo.RSSI)
@@ -87,7 +88,8 @@ class ViewController: UIViewController, BeaconScannerDelegate {
       return
     }
 
-    joinRoom(URL)
+//    joinRoom(URL)
+    print("--- joining: \(URL.absoluteString)")
   }
 
   func joinRoom(URL: NSURL) {
