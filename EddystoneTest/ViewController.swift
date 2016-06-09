@@ -48,6 +48,11 @@ class ViewController: UIViewController, BeaconScannerDelegate {
     scanForRoom()
   }
 
+  // For debugging in simulator
+//  override func viewDidAppear(animated: Bool) {
+//    joinRoom(NSURL(string: "https://mzl.bnich.com/b/1")!)
+//  }
+
   func didFindBeacon(beaconScanner: BeaconScanner, beaconInfo: BeaconInfo) {
     NSLog("FIND: %@", beaconInfo.description)
   }
@@ -89,6 +94,10 @@ class ViewController: UIViewController, BeaconScannerDelegate {
     timer?.invalidate()
     beaconScanner.stopScanning()
     beaconText.text = URL.absoluteString
+
+    let chatController = ChatViewController()
+    chatController.loadURL(URL)
+    presentViewController(chatController, animated: true, completion: nil)
   }
 
   func scanForRoom() {
