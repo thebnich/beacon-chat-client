@@ -13,12 +13,28 @@
 		D3436EAE1D0628CF00FED02B /* BeaconScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3436EA71D0628CF00FED02B /* BeaconScanner.swift */; };
 		D3436EAF1D0628CF00FED02B /* DispatchTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3436EA81D0628CF00FED02B /* DispatchTimer.swift */; };
 		D3436EB01D0628CF00FED02B /* Eddystone.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3436EA91D0628CF00FED02B /* Eddystone.swift */; };
+		D354E9BA1D08EF1F009507E6 /* SocketIOClientSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D354E9B91D08EF1F009507E6 /* SocketIOClientSwift.framework */; };
+		D354E9BB1D08EF1F009507E6 /* SocketIOClientSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D354E9B91D08EF1F009507E6 /* SocketIOClientSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D3ACF7951D06284000647D43 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3ACF7941D06284000647D43 /* AppDelegate.swift */; };
 		D3ACF7971D06284000647D43 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3ACF7961D06284000647D43 /* ViewController.swift */; };
 		D3ACF79A1D06284000647D43 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D3ACF7981D06284000647D43 /* Main.storyboard */; };
 		D3ACF79C1D06284000647D43 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D3ACF79B1D06284000647D43 /* Assets.xcassets */; };
 		D3ACF79F1D06284000647D43 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D3ACF79D1D06284000647D43 /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D354E9B61D08E6B9009507E6 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				D354E9BB1D08EF1F009507E6 /* SocketIOClientSwift.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		D3436EA21D0628CF00FED02B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -27,6 +43,7 @@
 		D3436EA71D0628CF00FED02B /* BeaconScanner.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = BeaconScanner.swift; sourceTree = "<group>"; tabWidth = 2; };
 		D3436EA81D0628CF00FED02B /* DispatchTimer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DispatchTimer.swift; sourceTree = "<group>"; };
 		D3436EA91D0628CF00FED02B /* Eddystone.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = Eddystone.swift; sourceTree = "<group>"; tabWidth = 2; };
+		D354E9B91D08EF1F009507E6 /* SocketIOClientSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SocketIOClientSwift.framework; path = Carthage/Build/iOS/SocketIOClientSwift.framework; sourceTree = "<group>"; };
 		D3ACF7911D06284000647D43 /* EddystoneTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EddystoneTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D3ACF7941D06284000647D43 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D3ACF7961D06284000647D43 /* ViewController.swift */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; tabWidth = 2; };
@@ -41,6 +58,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D354E9BA1D08EF1F009507E6 /* SocketIOClientSwift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -60,6 +78,7 @@
 		D3ACF7881D06284000647D43 = {
 			isa = PBXGroup;
 			children = (
+				D354E9B91D08EF1F009507E6 /* SocketIOClientSwift.framework */,
 				D3ACF7931D06284000647D43 /* EddystoneTest */,
 				D3ACF7921D06284000647D43 /* Products */,
 			);
@@ -100,6 +119,7 @@
 				D3ACF78D1D06284000647D43 /* Sources */,
 				D3ACF78E1D06284000647D43 /* Frameworks */,
 				D3ACF78F1D06284000647D43 /* Resources */,
+				D354E9B61D08E6B9009507E6 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -307,6 +327,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = EddystoneTest/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.thebnich.eddystone.EddystoneTest;
@@ -318,6 +342,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = EddystoneTest/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.thebnich.eddystone.EddystoneTest;
