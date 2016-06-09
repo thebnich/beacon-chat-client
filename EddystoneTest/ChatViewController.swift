@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Foundation
+import Kanna
 import UIKit
 
 let CellIdentifier = "ChatCell"
@@ -15,6 +16,8 @@ private struct ChatMessage {
 
 class ChatViewController: UIViewController, ChatClientDelegate, UITableViewDataSource, UITextFieldDelegate, KeyboardHelperDelegate {
     private let chatTable = UITableView()
+    private let titleLabel = UILabel()
+    private let URLLabel = UILabel()
     private var chatTextBottomConstraint: NSLayoutConstraint!
     private var messages = [ChatMessage]()
     private var chatClient: ChatClient?
@@ -27,6 +30,29 @@ class ChatViewController: UIViewController, ChatClientDelegate, UITableViewDataS
 
     override func viewDidLoad() {
         view.backgroundColor = UIColor.whiteColor()
+
+        let header = UIView()
+        view.addSubview(header)
+        header.backgroundColor = UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 1)
+        header.translatesAutoresizingMaskIntoConstraints = false
+        header.topAnchor.constraintEqualToAnchor(view.topAnchor).active = true
+        header.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor).active = true
+        header.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor).active = true
+
+        header.addSubview(titleLabel)
+        titleLabel.font = UIFont.boldSystemFontOfSize(14)
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.topAnchor.constraintEqualToAnchor(topLayoutGuide.bottomAnchor, constant: 10).active = true
+        titleLabel.leadingAnchor.constraintEqualToAnchor(header.leadingAnchor, constant: 10).active = true
+        titleLabel.trailingAnchor.constraintEqualToAnchor(header.trailingAnchor, constant: -10).active = true
+
+        header.addSubview(URLLabel)
+        URLLabel.font = UIFont.systemFontOfSize(12)
+        URLLabel.translatesAutoresizingMaskIntoConstraints = false
+        URLLabel.topAnchor.constraintEqualToAnchor(titleLabel.bottomAnchor).active = true
+        URLLabel.leadingAnchor.constraintEqualToAnchor(header.leadingAnchor, constant: 10).active = true
+        URLLabel.trailingAnchor.constraintEqualToAnchor(header.trailingAnchor, constant: -10).active = true
+        URLLabel.bottomAnchor.constraintEqualToAnchor(header.bottomAnchor, constant: -10).active = true
 
         let chatTextBorder = UIView()
         view.addSubview(chatTextBorder)
@@ -50,7 +76,7 @@ class ChatViewController: UIViewController, ChatClientDelegate, UITableViewDataS
         view.addSubview(chatTable)
         chatTable.separatorStyle = .None
         chatTable.translatesAutoresizingMaskIntoConstraints = false
-        chatTable.topAnchor.constraintEqualToAnchor(topLayoutGuide.bottomAnchor).active = true
+        chatTable.topAnchor.constraintEqualToAnchor(header.bottomAnchor).active = true
         chatTable.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor).active = true
         chatTable.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor).active = true
         chatTable.bottomAnchor.constraintEqualToAnchor(chatTextBorder.topAnchor).active = true
@@ -63,6 +89,18 @@ class ChatViewController: UIViewController, ChatClientDelegate, UITableViewDataS
     func loadURL(URL: NSURL) {
         chatClient = ChatClient(room: URL.absoluteString)
         chatClient?.delegate = self
+
+        NSURLSession.sharedSession().dataTaskWithURL(URL) { data, response, error in
+            if let data = data,
+                   html = NSString(data: data, encoding: NSUTF8StringEncoding),
+                   doc = Kanna.HTML(html: String(html), encoding: NSUTF8StringEncoding),
+                   title = doc.title {
+                dispatch_async(dispatch_get_main_queue()) {
+                    self.URLLabel.text = response!.URL?.absoluteString
+                    self.titleLabel.text = title
+                }
+            }
+        }.resume()
     }
 
     func chatClientOnMessage(chatClient: ChatClient, time: String, user: String, message: String) {
