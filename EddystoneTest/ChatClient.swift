@@ -15,9 +15,17 @@ class ChatClient {
     weak var delegate: ChatClientDelegate?
 
     private let socket: SocketIOClient
+    private var queue = [(event: String, items: [AnyObject])]()
 
     init() {
         socket = SocketIOClient(socketURL: SocketURL, options: [.Log(false)])
+
+        socket.on("connect") { data, ack in
+            for message in self.queue {
+                self.socket.emit(message.event, message.items)
+            }
+            self.queue.removeAll()
+        }
 
         socket.on("msg") { data, ack in
             guard let values = data as? [[String]] else { return }
@@ -31,18 +39,27 @@ class ChatClient {
     }
 
     func joinRoom(room: String) {
-        self.socket.emit("joinroom", room)
+        emit("joinroom", room)
     }
 
     func leaveRoom() {
-        self.socket.emit("leaveroom", "")
+        emit("leaveroom", "")
     }
 
     func setNick(nick: String) {
-        self.socket.emit("nick", nick)
+        emit("nick", nick)
     }
 
     func sendMessage(message: String) {
-        socket.emit("msg", message)
+        emit("msg", message)
+    }
+
+    private func emit(event: String, _ items: AnyObject...) {
+        guard socket.status == .Connected else {
+            queue.append((event, items))
+            return
+        }
+
+        socket.emit(event, items)
     }
 }
