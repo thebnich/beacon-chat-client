@@ -16,6 +16,7 @@ import Kanna
 import UIKit
 
 private let CellIdentifier = "BeaconCell"
+private let NickPrefKey = "Nick"
 
 private class PageWrapper {
   var pageInfo: PageInfo? = nil
@@ -26,11 +27,11 @@ private struct PageInfo {
   var title: String
 }
 
-class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, BeaconScannerDelegate {
+class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate, BeaconScannerDelegate {
   private let beaconScanner = BeaconScanner()
   private let beaconTable = UITableView()
-  private let chatClient = ChatClient()
 
+  private let chatClient = ChatClient()
   private var beaconsInRange = [NSURL: (count: Int, sumRSSI: Int)]()
   private var pages = [PageWrapper]()
   private var pageMap = [NSURL: PageInfo]()
@@ -39,10 +40,28 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
   override func viewDidLoad() {
     super.viewDidLoad()
 
+    let nick = NSUserDefaults.standardUserDefaults().stringForKey(NickPrefKey) ?? randomNick()
+    NSUserDefaults.standardUserDefaults().setObject(nick, forKey: NickPrefKey)
+    chatClient.setNick(nick)
+    chatClient.connect()
+
+    let nickField = UITextField(frame: CGRectMake(0, 0, 150, 30))
+    nickField.text = nick
+    nickField.autocorrectionType = .No
+    nickField.autocapitalizationType = .None
+    nickField.backgroundColor = UIColor.whiteColor()
+    nickField.textAlignment = .Center
+    nickField.layer.cornerRadius = 5
+    nickField.layer.borderColor = UIColor.grayColor().CGColor
+    nickField.layer.borderWidth = 0.5
+    nickField.delegate = self
+    navigationItem.titleView = nickField
+
     view.addSubview(beaconTable)
     beaconTable.separatorStyle = .None
+    beaconTable.rowHeight = 50
     beaconTable.translatesAutoresizingMaskIntoConstraints = false
-    beaconTable.topAnchor.constraintEqualToAnchor(topLayoutGuide.bottomAnchor).active = true
+    beaconTable.topAnchor.constraintEqualToAnchor(view.topAnchor).active = true
     beaconTable.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor).active = true
     beaconTable.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor).active = true
     beaconTable.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor).active = true
@@ -60,6 +79,10 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 //    joinRoom(NSURL(string: "https://mzl.bnich.com/b/1")!)
 //  }
 
+  func randomNick() -> String {
+    return "Guest\(Int(arc4random_uniform(9999) + 1))"
+  }
+
   func didFindBeacon(beaconScanner: BeaconScanner, beaconInfo: BeaconInfo) {}
 
   func didLoseBeacon(beaconScanner: BeaconScanner, beaconInfo: BeaconInfo) {}
@@ -70,8 +93,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 
     let (count, sumRSSI) = beaconsInRange[URL] ?? (0, 0)
     beaconsInRange[URL] = (count + 1, sumRSSI + beaconInfo.RSSI)
-
-    NSLog("UPDATE: %@", beaconInfo.description)
   }
 
   func updateClosestBeacon() {
@@ -148,7 +169,27 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
   }
 
   func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    tableView.deselectRowAtIndexPath(indexPath, animated: false)
     guard let pageInfo = pages[indexPath.row].pageInfo else { return }
     joinRoom(pageInfo)
+  }
+
+  func textFieldDidBeginEditing(textField: UITextField) {
+    textField.selectAll(nil)
+  }
+
+  func textFieldShouldReturn(textField: UITextField) -> Bool {
+    textField.resignFirstResponder()
+    return true
+  }
+
+  func textFieldDidEndEditing(textField: UITextField) {
+    var nick = textField.text ?? ""
+    if nick.isEmpty {
+      nick = randomNick()
+    }
+
+    NSUserDefaults.standardUserDefaults().setObject(nick, forKey: NickPrefKey)
+    chatClient.setNick(nick)
   }
 }

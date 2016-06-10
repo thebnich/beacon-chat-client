@@ -15,19 +15,14 @@ class ChatClient {
     weak var delegate: ChatClientDelegate?
 
     private let socket: SocketIOClient
-    private var queue = [(event: String, items: [AnyObject])]()
+    private var queue = [(event: String, msg: String)]()
+    private var nick = "?"
+    private var room: String?
 
     init() {
-        socket = SocketIOClient(socketURL: SocketURL, options: [.Log(false)])
+        socket = SocketIOClient(socketURL: SocketURL, options: [.ForcePolling(true), .Log(false)])
 
-        socket.on("connect") { data, ack in
-            for message in self.queue {
-                self.socket.emit(message.event, message.items)
-            }
-            self.queue.removeAll()
-        }
-
-        socket.on("msg") { data, ack in
+        socket.on("msg") { [unowned self] data, ack in
             guard let values = data as? [[String]] else { return }
 
             for value in values {
@@ -35,31 +30,50 @@ class ChatClient {
             }
         }
 
+        socket.on("connect") { [unowned self] data, ack in
+            self.setNick(self.nick)
+
+            if let room = self.room {
+                self.joinRoom(room)
+            }
+
+            for message in self.queue {
+                self.socket.emit(message.event, message.msg)
+            }
+
+            self.queue.removeAll()
+        }
+    }
+
+    func connect() {
         socket.connect()
     }
 
     func joinRoom(room: String) {
-        emit("joinroom", room)
+        self.room = room
+        socket.emit("joinroom", room)
     }
 
     func leaveRoom() {
-        emit("leaveroom", "")
+        self.room = nil
+        socket.emit("leaveroom", "")
     }
 
     func setNick(nick: String) {
-        emit("nick", nick)
+        self.nick = nick
+        self.socket.emit("nick", nick)
     }
 
     func sendMessage(message: String) {
         emit("msg", message)
     }
 
-    private func emit(event: String, _ items: AnyObject...) {
+    private func emit(event: String, _ msg: String) {
         guard socket.status == .Connected else {
-            queue.append((event, items))
+            queue.append((event, msg))
             return
         }
 
-        socket.emit(event, items)
+        socket.emit(event, msg)
     }
 }
