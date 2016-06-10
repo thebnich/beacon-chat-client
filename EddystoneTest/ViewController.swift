@@ -101,10 +101,10 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     chatClient.joinRoom(pageInfo.URL.absoluteString)
 
     let chatController = ChatViewController()
-    chatController.URLLabel.text = pageInfo.URL.absoluteString
-    chatController.titleLabel.text = pageInfo.title
+    chatController.title = pageInfo.title
     chatController.chatClient = chatClient
-    presentViewController(chatController, animated: true, completion: nil)
+
+    navigationController?.pushViewController(chatController, animated: true)
   }
 
   private func scanForRoom() {

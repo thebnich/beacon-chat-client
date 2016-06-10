@@ -20,9 +20,6 @@ class ChatViewController: UIViewController, ChatClientDelegate, UITableViewDataS
         }
     }
 
-    let titleLabel = UILabel()
-    let URLLabel = UILabel()
-
     private let chatTable = UITableView()
     private var chatTextBottomConstraint: NSLayoutConstraint!
     private var messages = [ChatMessage]()
@@ -36,28 +33,7 @@ class ChatViewController: UIViewController, ChatClientDelegate, UITableViewDataS
     override func viewDidLoad() {
         view.backgroundColor = UIColor.whiteColor()
 
-        let header = UIView()
-        view.addSubview(header)
-        header.backgroundColor = UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 1)
-        header.translatesAutoresizingMaskIntoConstraints = false
-        header.topAnchor.constraintEqualToAnchor(view.topAnchor).active = true
-        header.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor).active = true
-        header.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor).active = true
-
-        header.addSubview(titleLabel)
-        titleLabel.font = UIFont.boldSystemFontOfSize(14)
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.topAnchor.constraintEqualToAnchor(topLayoutGuide.bottomAnchor, constant: 10).active = true
-        titleLabel.leadingAnchor.constraintEqualToAnchor(header.leadingAnchor, constant: 10).active = true
-        titleLabel.trailingAnchor.constraintEqualToAnchor(header.trailingAnchor, constant: -10).active = true
-
-        header.addSubview(URLLabel)
-        URLLabel.font = UIFont.systemFontOfSize(12)
-        URLLabel.translatesAutoresizingMaskIntoConstraints = false
-        URLLabel.topAnchor.constraintEqualToAnchor(titleLabel.bottomAnchor).active = true
-        URLLabel.leadingAnchor.constraintEqualToAnchor(header.leadingAnchor, constant: 10).active = true
-        URLLabel.trailingAnchor.constraintEqualToAnchor(header.trailingAnchor, constant: -10).active = true
-        URLLabel.bottomAnchor.constraintEqualToAnchor(header.bottomAnchor, constant: -10).active = true
+        navigationItem.title = title
 
         let chatTextBorder = UIView()
         view.addSubview(chatTextBorder)
@@ -81,7 +57,7 @@ class ChatViewController: UIViewController, ChatClientDelegate, UITableViewDataS
         view.addSubview(chatTable)
         chatTable.separatorStyle = .None
         chatTable.translatesAutoresizingMaskIntoConstraints = false
-        chatTable.topAnchor.constraintEqualToAnchor(header.bottomAnchor).active = true
+        chatTable.topAnchor.constraintEqualToAnchor(topLayoutGuide.bottomAnchor).active = true
         chatTable.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor).active = true
         chatTable.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor).active = true
         chatTable.bottomAnchor.constraintEqualToAnchor(chatTextBorder.topAnchor).active = true
