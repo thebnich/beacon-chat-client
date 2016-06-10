@@ -16,12 +16,8 @@ class ChatClient {
 
     private let socket: SocketIOClient
 
-    init(room: String) {
+    init() {
         socket = SocketIOClient(socketURL: SocketURL, options: [.Log(false)])
-
-        socket.on("connect") { data, ack in
-            self.socket.emit("joinroom", room)
-        }
 
         socket.on("msg") { data, ack in
             guard let values = data as? [[String]] else { return }
@@ -32,6 +28,18 @@ class ChatClient {
         }
 
         socket.connect()
+    }
+
+    func joinRoom(room: String) {
+        self.socket.emit("joinroom", room)
+    }
+
+    func leaveRoom() {
+        self.socket.emit("leaveroom", "")
+    }
+
+    func setNick(nick: String) {
+        self.socket.emit("nick", nick)
     }
 
     func sendMessage(message: String) {

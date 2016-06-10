@@ -3,10 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Foundation
-import Kanna
 import UIKit
 
-let CellIdentifier = "ChatCell"
+private let CellIdentifier = "ChatCell"
 
 private struct ChatMessage {
     let time: String
@@ -15,12 +14,18 @@ private struct ChatMessage {
 }
 
 class ChatViewController: UIViewController, ChatClientDelegate, UITableViewDataSource, UITextFieldDelegate, KeyboardHelperDelegate {
+    var chatClient: ChatClient? {
+        didSet {
+            chatClient?.delegate = self
+        }
+    }
+
+    let titleLabel = UILabel()
+    let URLLabel = UILabel()
+
     private let chatTable = UITableView()
-    private let titleLabel = UILabel()
-    private let URLLabel = UILabel()
     private var chatTextBottomConstraint: NSLayoutConstraint!
     private var messages = [ChatMessage]()
-    private var chatClient: ChatClient?
 
     private lazy var chatText: UITextField = {
         let textField = UITextField()
@@ -84,23 +89,6 @@ class ChatViewController: UIViewController, ChatClientDelegate, UITableViewDataS
         chatTable.allowsSelection = false
 
         KeyboardHelper.defaultHelper.addDelegate(self)
-    }
-
-    func loadURL(URL: NSURL) {
-        chatClient = ChatClient(room: URL.absoluteString)
-        chatClient?.delegate = self
-
-        NSURLSession.sharedSession().dataTaskWithURL(URL) { data, response, error in
-            if let data = data,
-                   html = NSString(data: data, encoding: NSUTF8StringEncoding),
-                   doc = Kanna.HTML(html: String(html), encoding: NSUTF8StringEncoding),
-                   title = doc.title {
-                dispatch_async(dispatch_get_main_queue()) {
-                    self.URLLabel.text = response!.URL?.absoluteString
-                    self.titleLabel.text = title
-                }
-            }
-        }.resume()
     }
 
     func chatClientOnMessage(chatClient: ChatClient, time: String, user: String, message: String) {

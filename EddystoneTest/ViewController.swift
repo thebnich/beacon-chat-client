@@ -12,35 +12,42 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Kanna
 import UIKit
 
-class ViewController: UIViewController, BeaconScannerDelegate {
+private let CellIdentifier = "BeaconCell"
 
-  let beaconScanner = BeaconScanner()
-  let beaconText = UITextView()
+private class PageWrapper {
+  var pageInfo: PageInfo? = nil
+}
 
-  var beaconsInRange = [NSURL: (count: Int, sumRSSI: Int)]()
-  var timer: NSTimer?
+private struct PageInfo {
+  var URL: NSURL
+  var title: String
+}
+
+class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, BeaconScannerDelegate {
+  private let beaconScanner = BeaconScanner()
+  private let beaconTable = UITableView()
+  private let chatClient = ChatClient()
+
+  private var beaconsInRange = [NSURL: (count: Int, sumRSSI: Int)]()
+  private var pages = [PageWrapper]()
+  private var pageMap = [NSURL: PageInfo]()
+  private var timer: NSTimer?
 
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    view.addSubview(beaconText)
-    beaconText.scrollEnabled = false
-    beaconText.font = UIFont.systemFontOfSize(20)
-    beaconText.translatesAutoresizingMaskIntoConstraints = false
-    beaconText.centerXAnchor.constraintEqualToAnchor(view.centerXAnchor).active = true
-    beaconText.centerYAnchor.constraintEqualToAnchor(view.centerYAnchor).active = true
-
-    let leaveButton = UIButton()
-    view.addSubview(leaveButton)
-    leaveButton.setTitle("Leave room", forState: .Normal)
-    leaveButton.setTitleColor(UIColor.blackColor(), forState: .Normal)
-    leaveButton.addTarget(self, action: #selector(scanForRoom), forControlEvents: .TouchUpInside)
-    leaveButton.titleLabel?.font = UIFont.systemFontOfSize(20)
-    leaveButton.translatesAutoresizingMaskIntoConstraints = false
-    leaveButton.centerXAnchor.constraintEqualToAnchor(view.centerXAnchor).active = true
-    leaveButton.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor).active = true
+    view.addSubview(beaconTable)
+    beaconTable.separatorStyle = .None
+    beaconTable.translatesAutoresizingMaskIntoConstraints = false
+    beaconTable.topAnchor.constraintEqualToAnchor(topLayoutGuide.bottomAnchor).active = true
+    beaconTable.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor).active = true
+    beaconTable.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor).active = true
+    beaconTable.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor).active = true
+    beaconTable.dataSource = self
+    beaconTable.delegate = self
 
     beaconScanner.delegate = self
 
@@ -53,13 +60,9 @@ class ViewController: UIViewController, BeaconScannerDelegate {
 //    joinRoom(NSURL(string: "https://mzl.bnich.com/b/1")!)
 //  }
 
-  func didFindBeacon(beaconScanner: BeaconScanner, beaconInfo: BeaconInfo) {
-    NSLog("FIND: %@", beaconInfo.description)
-  }
+  func didFindBeacon(beaconScanner: BeaconScanner, beaconInfo: BeaconInfo) {}
 
-  func didLoseBeacon(beaconScanner: BeaconScanner, beaconInfo: BeaconInfo) {
-    NSLog("LOST: %@", beaconInfo.description)
-  }
+  func didLoseBeacon(beaconScanner: BeaconScanner, beaconInfo: BeaconInfo) {}
 
   func didUpdateBeacon(beaconScanner: BeaconScanner, beaconInfo: BeaconInfo) {
     // +127 is returned if the value cannot be read.
@@ -72,41 +75,80 @@ class ViewController: UIViewController, BeaconScannerDelegate {
   }
 
   func updateClosestBeacon() {
+    pages.removeAll()
+
     // beaconsInRange is modified both on the UI thread and the background thread.
     // Make a local copy here so it doesn't change while we're iterating over it.
     let beaconsInRange = self.beaconsInRange
-    let initial: (URL: NSURL, averageRSSI: Int)? = nil
-    let closestBeacon = beaconsInRange.reduce(initial) { current, other in
-      let averageRSSI = other.1.sumRSSI / other.1.count
-      return (averageRSSI > current?.averageRSSI) ? (other.0, averageRSSI) : current
+    beaconsInRange.sort() { beacon1, beacon2 in
+      return beacon1.1.sumRSSI / beacon1.1.count > beacon2.1.sumRSSI / beacon2.1.count
+    }.forEach { beacon in
+      let pageWrapper = PageWrapper()
+      pages.append(pageWrapper)
+      pageInfoForURL(beacon.0) { pageInfo in
+        pageWrapper.pageInfo = pageInfo
+        self.beaconTable.reloadData()
+      }
     }
 
     self.beaconsInRange.removeAll()
-
-    guard let URL = closestBeacon?.URL else {
-      beaconText.text = "Scanning..."
-      return
-    }
-
-//    joinRoom(URL)
-    print("--- joining: \(URL.absoluteString)")
   }
 
-  func joinRoom(URL: NSURL) {
+  private func joinRoom(pageInfo: PageInfo) {
     timer?.invalidate()
     beaconScanner.stopScanning()
-    beaconText.text = URL.absoluteString
+
+    chatClient.joinRoom(pageInfo.URL.absoluteString)
 
     let chatController = ChatViewController()
-    chatController.loadURL(URL)
+    chatController.URLLabel.text = pageInfo.URL.absoluteString
+    chatController.titleLabel.text = pageInfo.title
+    chatController.chatClient = chatClient
     presentViewController(chatController, animated: true, completion: nil)
   }
 
-  func scanForRoom() {
+  private func scanForRoom() {
     beaconsInRange.removeAll()
     updateClosestBeacon()
 
     beaconScanner.startScanning()
     timer = NSTimer.scheduledTimerWithTimeInterval(3, target: self, selector: #selector(updateClosestBeacon), userInfo: nil, repeats: true)
+  }
+
+  func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    return pages.count
+  }
+
+  func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    let cell = tableView.dequeueReusableCellWithIdentifier(CellIdentifier) ?? UITableViewCell(style: .Subtitle, reuseIdentifier: CellIdentifier)
+    let pageInfo = pages[indexPath.row].pageInfo
+    cell.textLabel?.text = pageInfo?.title
+    cell.detailTextLabel?.text = pageInfo?.URL.absoluteString
+    return cell
+  }
+
+  private func pageInfoForURL(URL: NSURL, callback: PageInfo -> ()) {
+    if let pageInfo = pageMap[URL] {
+      callback(pageInfo)
+      return
+    }
+
+    NSURLSession.sharedSession().dataTaskWithURL(URL) { data, response, error in
+      if let data = data,
+        html = NSString(data: data, encoding: NSUTF8StringEncoding),
+        doc = Kanna.HTML(html: String(html), encoding: NSUTF8StringEncoding),
+        title = doc.title {
+        dispatch_async(dispatch_get_main_queue()) {
+          let pageInfo = PageInfo(URL: response!.URL!, title: title)
+          self.pageMap[URL] = pageInfo
+          callback(pageInfo)
+        }
+      }
+    }.resume()
+  }
+
+  func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    guard let pageInfo = pages[indexPath.row].pageInfo else { return }
+    joinRoom(pageInfo)
   }
 }
