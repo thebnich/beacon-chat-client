@@ -27,15 +27,12 @@ private struct PageInfo {
   var title: String
 }
 
-class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate, BeaconScannerDelegate {
-  private let beaconScanner = BeaconScanner()
-  private let beaconTable = UITableView()
-
+class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate {
   private let chatClient = ChatClient()
-  private var beaconsInRange = [NSURL: (count: Int, sumRSSI: Int)]()
   private var pages = [PageWrapper]()
   private var pageMap = [NSURL: PageInfo]()
-  private var timer: NSTimer?
+
+  private let beaconTable = UITableView()
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -68,10 +65,19 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     beaconTable.dataSource = self
     beaconTable.delegate = self
 
-    beaconScanner.delegate = self
+    ProximityBeaconScanner().getSortedURLs() { URLs in
+      self.pages.removeAll()
 
-    updateClosestBeacon()
-    scanForRoom()
+      for URL in URLs {
+        let wrapper = PageWrapper()
+        self.pages.append(wrapper)
+
+        self.pageInfoForURL(URL) { pageInfo in
+          wrapper.pageInfo = pageInfo
+          self.beaconTable.reloadData()
+        }
+      }
+    }
   }
 
   // For debugging in simulator
@@ -83,42 +89,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     return "Guest\(Int(arc4random_uniform(9999) + 1))"
   }
 
-  func didFindBeacon(beaconScanner: BeaconScanner, beaconInfo: BeaconInfo) {}
-
-  func didLoseBeacon(beaconScanner: BeaconScanner, beaconInfo: BeaconInfo) {}
-
-  func didUpdateBeacon(beaconScanner: BeaconScanner, beaconInfo: BeaconInfo) {
-    // +127 is returned if the value cannot be read.
-    guard let URL = beaconInfo.URL where beaconInfo.RSSI != 127 else { return }
-
-    let (count, sumRSSI) = beaconsInRange[URL] ?? (0, 0)
-    beaconsInRange[URL] = (count + 1, sumRSSI + beaconInfo.RSSI)
-  }
-
-  func updateClosestBeacon() {
-    pages.removeAll()
-
-    // beaconsInRange is modified both on the UI thread and the background thread.
-    // Make a local copy here so it doesn't change while we're iterating over it.
-    let beaconsInRange = self.beaconsInRange
-    beaconsInRange.sort() { beacon1, beacon2 in
-      return beacon1.1.sumRSSI / beacon1.1.count > beacon2.1.sumRSSI / beacon2.1.count
-    }.forEach { beacon in
-      let pageWrapper = PageWrapper()
-      pages.append(pageWrapper)
-      pageInfoForURL(beacon.0) { pageInfo in
-        pageWrapper.pageInfo = pageInfo
-        self.beaconTable.reloadData()
-      }
-    }
-
-    self.beaconsInRange.removeAll()
-  }
-
   private func joinRoom(pageInfo: PageInfo) {
-    timer?.invalidate()
-    beaconScanner.stopScanning()
-
     chatClient.joinRoom(pageInfo.URL.absoluteString)
 
     let chatController = ChatViewController()
@@ -126,14 +97,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     chatController.chatClient = chatClient
 
     navigationController?.pushViewController(chatController, animated: true)
-  }
-
-  private func scanForRoom() {
-    beaconsInRange.removeAll()
-    updateClosestBeacon()
-
-    beaconScanner.startScanning()
-    timer = NSTimer.scheduledTimerWithTimeInterval(3, target: self, selector: #selector(updateClosestBeacon), userInfo: nil, repeats: true)
   }
 
   func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

@@ -23,6 +23,7 @@
 		D3ACF79C1D06284000647D43 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D3ACF79B1D06284000647D43 /* Assets.xcassets */; };
 		D3ACF79F1D06284000647D43 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D3ACF79D1D06284000647D43 /* LaunchScreen.storyboard */; };
 		D3AE23FD1D07E10000BE1D0F /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3AE23FC1D07E10000BE1D0F /* ChatViewController.swift */; };
+		D3B531811D0B7FC200E4E321 /* ProximityBeaconScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3B531801D0B7FC200E4E321 /* ProximityBeaconScanner.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -57,6 +58,7 @@
 		D3ACF79E1D06284000647D43 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		D3ACF7A01D06284000647D43 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D3AE23FC1D07E10000BE1D0F /* ChatViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
+		D3B531801D0B7FC200E4E321 /* ProximityBeaconScanner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProximityBeaconScanner.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +112,7 @@
 				D3436EA81D0628CF00FED02B /* DispatchTimer.swift */,
 				D3436EA91D0628CF00FED02B /* Eddystone.swift */,
 				D35660A71D09052800B310BB /* KeyboardHelper.swift */,
+				D3B531801D0B7FC200E4E321 /* ProximityBeaconScanner.swift */,
 				D3ACF7961D06284000647D43 /* ViewController.swift */,
 				D3ACF79B1D06284000647D43 /* Assets.xcassets */,
 				D3436EA01D0628CF00FED02B /* Base.lproj */,
@@ -198,6 +201,7 @@
 				D3436EAE1D0628CF00FED02B /* BeaconScanner.swift in Sources */,
 				D3ACF7951D06284000647D43 /* AppDelegate.swift in Sources */,
 				D3436EAF1D0628CF00FED02B /* DispatchTimer.swift in Sources */,
+				D3B531811D0B7FC200E4E321 /* ProximityBeaconScanner.swift in Sources */,
 				D354E9B81D08E6F8009507E6 /* ChatClient.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
