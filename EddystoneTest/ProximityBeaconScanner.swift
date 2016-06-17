@@ -12,7 +12,9 @@ class ProximityBeaconScanner: BeaconScannerDelegate {
         beaconScanner.delegate = self
     }
 
-    func didFindBeacon(beaconScanner: BeaconScanner, beaconInfo: BeaconInfo) {}
+    func didFindBeacon(beaconScanner: BeaconScanner, beaconInfo: BeaconInfo) {
+        print("found beacon: \(beaconInfo.URL)")
+    }
 
     func didLoseBeacon(beaconScanner: BeaconScanner, beaconInfo: BeaconInfo) {}
 

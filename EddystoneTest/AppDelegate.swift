@@ -14,11 +14,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     KeyboardHelper.defaultHelper.startObserving()
 
+    let chatClient = ChatClient()
+    let rootViewController = ChatViewController()
+    chatClient.delegate = rootViewController
+    rootViewController.chatClient = chatClient
+    chatClient.connect()
+
     self.window = UIWindow(frame: UIScreen.mainScreen().bounds)
     self.window?.backgroundColor = UIColor.whiteColor()
-    let rootViewController = ViewController()
-    let navController = UINavigationController(rootViewController: rootViewController)
-    self.window!.rootViewController = navController
+    self.window!.rootViewController = rootViewController
     self.window!.makeKeyAndVisible()
 
     return true

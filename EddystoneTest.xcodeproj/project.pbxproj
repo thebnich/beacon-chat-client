@@ -12,6 +12,7 @@
 		D3436EAE1D0628CF00FED02B /* BeaconScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3436EA71D0628CF00FED02B /* BeaconScanner.swift */; };
 		D3436EAF1D0628CF00FED02B /* DispatchTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3436EA81D0628CF00FED02B /* DispatchTimer.swift */; };
 		D3436EB01D0628CF00FED02B /* Eddystone.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3436EA91D0628CF00FED02B /* Eddystone.swift */; };
+		D34F99C21D1168500075B9D1 /* PageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34F99C11D1168500075B9D1 /* PageInfo.swift */; };
 		D354E9B81D08E6F8009507E6 /* ChatClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = D354E9B71D08E6F8009507E6 /* ChatClient.swift */; };
 		D354E9BA1D08EF1F009507E6 /* SocketIOClientSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D354E9B91D08EF1F009507E6 /* SocketIOClientSwift.framework */; };
 		D354E9BB1D08EF1F009507E6 /* SocketIOClientSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D354E9B91D08EF1F009507E6 /* SocketIOClientSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -47,6 +48,7 @@
 		D3436EA71D0628CF00FED02B /* BeaconScanner.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = BeaconScanner.swift; sourceTree = "<group>"; tabWidth = 2; };
 		D3436EA81D0628CF00FED02B /* DispatchTimer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DispatchTimer.swift; sourceTree = "<group>"; };
 		D3436EA91D0628CF00FED02B /* Eddystone.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = Eddystone.swift; sourceTree = "<group>"; tabWidth = 2; };
+		D34F99C11D1168500075B9D1 /* PageInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PageInfo.swift; sourceTree = "<group>"; };
 		D354E9B71D08E6F8009507E6 /* ChatClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatClient.swift; sourceTree = "<group>"; };
 		D354E9B91D08EF1F009507E6 /* SocketIOClientSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SocketIOClientSwift.framework; path = Carthage/Build/iOS/SocketIOClientSwift.framework; sourceTree = "<group>"; };
 		D35660A71D09052800B310BB /* KeyboardHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardHelper.swift; sourceTree = "<group>"; };
@@ -112,6 +114,7 @@
 				D3436EA81D0628CF00FED02B /* DispatchTimer.swift */,
 				D3436EA91D0628CF00FED02B /* Eddystone.swift */,
 				D35660A71D09052800B310BB /* KeyboardHelper.swift */,
+				D34F99C11D1168500075B9D1 /* PageInfo.swift */,
 				D3B531801D0B7FC200E4E321 /* ProximityBeaconScanner.swift */,
 				D3ACF7961D06284000647D43 /* ViewController.swift */,
 				D3ACF79B1D06284000647D43 /* Assets.xcassets */,
@@ -196,6 +199,7 @@
 			files = (
 				D35660A81D09052800B310BB /* KeyboardHelper.swift in Sources */,
 				D3ACF7971D06284000647D43 /* ViewController.swift in Sources */,
+				D34F99C21D1168500075B9D1 /* PageInfo.swift in Sources */,
 				D3436EB01D0628CF00FED02B /* Eddystone.swift in Sources */,
 				D3AE23FD1D07E10000BE1D0F /* ChatViewController.swift in Sources */,
 				D3436EAE1D0628CF00FED02B /* BeaconScanner.swift in Sources */,
